@@ -415,6 +415,7 @@ generate_spec_repo_podspec() {
 pack_release_zip() {
   local name="$1"
   local pod_dir="${BUILD_DIR}/${name}"
+  local xcfw_dir="${BUILD_DIR}/${name}.xcframework"
   [[ -d "$pod_dir" ]] || return
   log "  $name: packing release zip..."
   mkdir -p "$RELEASES_DIR"
@@ -424,6 +425,12 @@ pack_release_zip() {
     cd "$pod_dir"
     zip -rq "$zip_path" .
   )
+  if [[ -d "$xcfw_dir" ]]; then
+    (
+      cd "${BUILD_DIR}"
+      zip -rq "$zip_path" "${name}.xcframework"
+    )
+  fi
   log "  $name zip: -> $zip_path"
 }
 

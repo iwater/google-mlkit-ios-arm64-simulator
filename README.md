@@ -131,11 +131,11 @@ This is the most elegant way to integrate. You upload the built binary `.zip` fi
    - `Releases/`: Contains all packaged `.xcframework.zip` binary archives.
    - `Specs/`: Contains the CocoaPods-compliant custom Specs directory structure, which automatically points to your configured GitHub Releases link.
 2. **Publish Binaries**: Create a Release (e.g. `v1.0.0`) in your GitHub binary hosting repository and upload all the `.xcframework.zip` files from the `Releases/` directory.
-3. **Push Specs Repo**: Create a lightweight Specs repository on GitHub (e.g. `raz-cocoapods-specs`), initialize the local `Specs/` directory as a Git repo, and push it.
+3. **Push Specs Repo**: Create a lightweight Specs repository on GitHub (e.g. `google-mlkit-ios-arm64-simulator-specs`), initialize the local `Specs/` directory as a Git repo, and push it.
 4. **Host App `Podfile` Integration**:
    Add your private source at the top of your host project's `Podfile`, then declare dependencies as usual:
    ```ruby
-   source 'https://github.com/iwater/raz-cocoapods-specs.git' # Your private specs repo URL
+   source 'https://github.com/iwater/google-mlkit-ios-arm64-simulator-specs.git' # Your private specs repo URL
    source 'https://cdn.cocoapods.org/' # Official source as fallback
 
    target 'YourApp' do
