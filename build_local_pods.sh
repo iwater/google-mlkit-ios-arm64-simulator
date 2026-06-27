@@ -365,6 +365,32 @@ generate_podspec() {
     [[ -n "$res_bundle_name" && -d "${pod_dir}/Resources" ]] && echo "  s.resource_bundles = { \"${res_bundle_name}\" => [\"Resources/${res_bundle_name}/**\"] }"
     [[ -n "$fw_list" ]] && echo "  s.frameworks = [$(echo "$fw_list" | sed 's/[^ ]*/"&"/g' | sed 's/ /, /g')]"
     [[ -n "$lib_list" ]] && echo "  s.libraries  = [$(echo "$lib_list" | sed 's/[^ ]*/"&"/g' | sed 's/ /, /g')]"
+    case "$name" in
+      MLKitCommon)
+        echo "  s.dependency 'GTMSessionFetcher/Core', '>= 3.3.2', '< 4.0'"
+        echo "  s.dependency 'GoogleDataTransport', '~> 10.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/Logger', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/NSData+zlib', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleUtilities/Logger', '~> 8.0'"
+        echo "  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'"
+        ;;
+      MLKitVision)
+        echo "  s.dependency 'GTMSessionFetcher/Core', '>= 3.3.2', '< 4.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/Logger', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/NSData+zlib', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'MLImage', '1.0.0-beta8'"
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        ;;
+      MLKitTextRecognitionCommon)
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        echo "  s.dependency 'MLKitVision', '10.0.0'"
+        ;;
+      MLKitTextRecognition | MLKitTextRecognitionChinese | MLKitTextRecognitionDevanagari | MLKitTextRecognitionJapanese | MLKitTextRecognitionKorean)
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        echo "  s.dependency 'MLKitTextRecognitionCommon', '6.0.0'"
+        echo "  s.dependency 'MLKitVision', '10.0.0'"
+        ;;
+    esac
     echo "end"
   } > "${pod_dir}/${name}.podspec"
   log "  $name: -> ${name}.podspec"
@@ -407,6 +433,32 @@ generate_spec_repo_podspec() {
     [[ -n "$res_bundle_name" ]] && echo "  s.resource_bundles = { \"${res_bundle_name}\" => [\"Resources/${res_bundle_name}/**\"] }"
     [[ -n "$fw_list" ]] && echo "  s.frameworks = [$(echo "$fw_list" | sed 's/[^ ]*/"&"/g' | sed 's/ /, /g')]"
     [[ -n "$lib_list" ]] && echo "  s.libraries  = [$(echo "$lib_list" | sed 's/[^ ]*/"&"/g' | sed 's/ /, /g')]"
+    case "$name" in
+      MLKitCommon)
+        echo "  s.dependency 'GTMSessionFetcher/Core', '>= 3.3.2', '< 4.0'"
+        echo "  s.dependency 'GoogleDataTransport', '~> 10.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/Logger', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/NSData+zlib', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleUtilities/Logger', '~> 8.0'"
+        echo "  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'"
+        ;;
+      MLKitVision)
+        echo "  s.dependency 'GTMSessionFetcher/Core', '>= 3.3.2', '< 4.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/Logger', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'GoogleToolboxForMac/NSData+zlib', '>= 4.2.1', '< 5.0'"
+        echo "  s.dependency 'MLImage', '1.0.0-beta8'"
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        ;;
+      MLKitTextRecognitionCommon)
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        echo "  s.dependency 'MLKitVision', '10.0.0'"
+        ;;
+      MLKitTextRecognition | MLKitTextRecognitionChinese | MLKitTextRecognitionDevanagari | MLKitTextRecognitionJapanese | MLKitTextRecognitionKorean)
+        echo "  s.dependency 'MLKitCommon', '14.0.0'"
+        echo "  s.dependency 'MLKitTextRecognitionCommon', '6.0.0'"
+        echo "  s.dependency 'MLKitVision', '10.0.0'"
+        ;;
+    esac
     echo "end"
   } > "${spec_dir}/${name}.podspec"
   log "  $name spec: -> ${spec_dir}/${name}.podspec"
