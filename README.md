@@ -70,7 +70,7 @@ The prebuilt MLKitCommon xcframework references symbols defined in other librari
 - `GULOSLogBasic` / `GULOSLogError` — logging functions from GoogleUtilities
 - `MLKITx_absl::*` — abseil-cpp C++ symbols in a custom `MLKITx` namespace
 
-These symbols are resolved by the linker from the GoogleMLKit umbrella pod, but when using xcframeworks standalone, stub implementations are required. See `ocrexample/AbseilStubs.mm` for the stub implementations.
+To resolve this without forcing developers to add stubs manually in their host app, the builder automatically bundles a secondary source-code Pod called `MLKitAbseilStubs` which includes `AbseilStubs.mm` compiled targeting simulator-only architectures (`TARGET_OS_SIMULATOR && defined(__arm64__)`). `MLKitCommon` declares a dependency on `MLKitAbseilStubs`, allowing CocoaPods to link these missing stubs automatically during compilation.
 
 ## Build Flow
 
@@ -124,14 +124,14 @@ The prebuilt xcframeworks (MLKitCommon, MLKitVision, etc.) depend on the followi
 
 ### Option 1: Private Spec Repo Integration (GitHub Hosted - Recommended)
 
-This is the most elegant way to integrate. You upload the built binary `.zip` files to GitHub Releases, and use a lightweight private Specs repository to host the podspecs. It keeps your host project's `Podfile` completely clean and **eliminates the need** to modify the `podspec` of any custom React Native modules for simulator debugging.
+This is the most elegant way to integrate. You upload the built binary `.zip` compressed files to GitHub Releases, and use a lightweight private Specs repository to host the podspecs. It keeps your host project's `Podfile` completely clean and **eliminates the need** to modify the `podspec` of any custom React Native modules for simulator debugging.
 
 #### Setup Steps:
-1. **Generate Release Files**: Run `./build_local_pods.sh`. This automatically generates two directories:
+1. **Generate Release Files**: Run `./build_local_pods.sh`. This automatically generates:
    - `Releases/`: Contains all packaged `.xcframework.zip` binary archives.
-   - `Specs/`: Contains the CocoaPods-compliant custom Specs directory structure, which automatically points to your configured GitHub Releases link.
-2. **Publish Binaries**: Create a Release (e.g. `v1.0.0`) in your GitHub binary hosting repository and upload all the `.xcframework.zip` files from the `Releases/` directory.
-3. **Push Specs Repo**: Create a lightweight Specs repository on GitHub (e.g. `google-mlkit-ios-arm64-simulator-specs`), initialize the local `Specs/` directory as a Git repo, and push it.
+   - `Specs/`: Contains the CocoaPods-compliant custom Specs directory structure for both `MLKitCommon` and `MLKitAbseilStubs` pointing to GitHub.
+2. **Publish Binaries**: Create a Release (e.g. `v1.0.1`) in your GitHub binary hosting repository and upload all the `.xcframework.zip` files from the `Releases/` directory.
+3. **Push Specs Repo**: Create a lightweight Specs repository on GitHub (e.g. `google-mlkit-ios-arm64-simulator-specs`), initialize the local `Specs/` directory as a Git repo, add your files, and push it.
 4. **Host App `Podfile` Integration**:
    Add your private source at the top of your host project's `Podfile`, then declare dependencies as usual:
    ```ruby
@@ -140,7 +140,7 @@ This is the most elegant way to integrate. You upload the built binary `.zip` fi
 
    target 'YourApp' do
      # Include your React Native module or MLKit directly.
-     # CocoaPods will automatically pull the patched, simulator-compatible package from your private specs source.
+     # CocoaPods will automatically pull the patched, simulator-compatible packages (MLKitCommon + MLKitAbseilStubs) from your private specs source.
      pod 'react-native-nitro-text-recognition', :path => '../modules/react-native-nitro-text-recognition'
    end
    ```
@@ -168,6 +168,7 @@ target 'YourApp' do
   pod 'GoogleUtilitiesComponents', '~> 1.0'
   pod 'Protobuf', '~> 3.12'
 
+  pod 'MLKitAbseilStubs',           :path => './LocalPods/MLKitAbseilStubs'
   pod 'MLKitCommon',                :path => './LocalPods/MLKitCommon'
   pod 'MLImage',                    :path => './LocalPods/MLImage'
   pod 'MLKitVision',                :path => './LocalPods/MLKitVision'
@@ -330,9 +331,12 @@ Full license texts are available in the `NOTICES` files included with each pod u
 +-- LocalPods/                       # Build artifacts
 |   +-- Podfile                      # CocoaPods config template
 |   +-- MLKitCommon/
-|   |   +-- MLKitCommon.podspec      # With dependency declarations
-|   |   +-- Frameworks/MLKitCommon.framework/
-|   +-- MLKitCommon.xcframework/
+|   |   +-- MLKitCommon.podspec      # Binary podspec linking MLKitCommon framework and MLKitAbseilStubs
+|   |   +-- MLKitCommon.xcframework/ # Fat framework with arm64 sim slice
+|   +-- MLKitAbseilStubs/
+|   |   +-- MLKitAbseilStubs.podspec # Source podspec for stubs
+|   |   +-- AbseilStubs.mm           # Stub implementation file
+
 |   +-- MLImage/
 |   +-- MLImage.xcframework/
 |   +-- MLKitVision/
