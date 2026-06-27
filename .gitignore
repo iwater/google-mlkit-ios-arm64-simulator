@@ -1,0 +1,35 @@
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Local build artifacts & backups
+LocalPods/
+LocalPods.tar
+Releases/
+Specs/
+build_local_pods_v[0-9].sh
+diagnose_arm64.sh
+
+# Ruby/Bundler/CocoaPods
+.ruby-lsp/
+.bundle/
+vendor/bundle/
+example/ocrexample/Pods/
+example/ocrexample/Podfile.lock
+example/ocrexample/ocrexample.xcworkspace/
+example/ocrexample.tar
+
+# Xcode User Data & Build directories
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/
+example/ocrexample/Frameworks/
+
+# Swift Package Manager
+.swiftpm/
+.build/
