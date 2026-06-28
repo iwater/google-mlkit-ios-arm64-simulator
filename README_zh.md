@@ -16,10 +16,18 @@ pod_target_xcconfig: {
 
 通过修改 Mach-O 二进制文件的 LC_BUILD_VERSION 加载命令，将平台标识从 iOS 改为 iOS Simulator，使 Xcode 链接器和运行时将这些库识别为模拟器兼容版本。
 
-最终产物为 xcframework，同时包含三个目标平台：
-- ios-arm64（真机）
-- ios-arm64-simulator（Apple Silicon 模拟器，已 patch）
-- ios-x86_64-simulator（Intel 模拟器，原始版本）
+最终产物为 `.xcframework`，同时包含三个目标平台切片：
+- **ios-arm64**（真机）
+- **ios-arm64-simulator**（Apple Silicon 模拟器，已 patch）
+- **ios-x86_64-simulator**（Intel 模拟器，原始版本）
+
+### 平台与架构支持对比
+
+| 平台 / 架构 | 官方原版 MLKit (集成本项目前) | 本项目 Patch (集成本项目后) | 补丁修改与影响说明 |
+|:---|:---:|:---:|:---|
+| **iOS 真机** (`arm64`) | ✅ 正常工作 | ✅ 正常工作 | **无任何影响**（完全使用 Google 官方原始未经改动的二进制切片） |
+| **Intel Mac 模拟器** (`x86_64`) | ✅ 正常工作 | ✅ 正常工作 | **无任何影响**（完全使用 Google 官方原始未经改动的二进制切片） |
+| **Apple Silicon 模拟器** (`arm64`) | ❌ 报错 (Linker Error) | ✅ 正常工作 | **解锁支持**（通过 LC_BUILD_VERSION 平台标志修改与符号桩适配） |
 
 ## 技术细节
 
@@ -219,22 +227,6 @@ LocalPods/MLKitTextRecognitionKorean.xcframework
 
 本项目对二进制文件应用了平台补丁（修改 LC_BUILD_VERSION）以支持 arm64 模拟器。这些补丁不改变原始库的功能，根据 Apache 许可证不构成演绎作品。
 
-### 第三方依赖
-
-以下开源库作为传递依赖（通过 CocoaPods 源码 pod）使用：
-
-| 库 | 许可证 |
-|----|--------|
-| Abseil (C++) | Apache License 2.0 |
-| GoogleUtilities | Apache License 2.0 |
-| GTMSessionFetcher | Apache License 2.0 |
-| GoogleDataTransport | Apache License 2.0 |
-| GoogleToolboxForMac | Apache License 2.0 |
-| Protobuf (Protocol Buffers) | BSD 3-Clause |
-| PromisesObjC | Apache License 2.0 |
-| nanopb | BSD 3-Clause |
-
-完整许可证文本可在 `LocalPods/` 下各 pod 的 `NOTICES` 文件中查阅。
 
 ## 文件说明
 

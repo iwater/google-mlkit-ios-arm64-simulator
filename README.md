@@ -16,10 +16,18 @@ When running iOS Simulator from Xcode on Apple Silicon Macs (M1/M2/M3/M4), these
 
 This solution patches Mach-O binary files by modifying the `LC_BUILD_VERSION` load command, changing the platform identifier from iOS to iOS Simulator. This makes the Xcode linker and runtime recognize these libraries as simulator-compatible.
 
-The final output is an xcframework containing three target platforms:
+The final output is an `.xcframework` containing three target platform slices:
 - **ios-arm64** (device)
 - **ios-arm64-simulator** (Apple Silicon simulator, patched)
 - **ios-x86_64-simulator** (Intel simulator, original)
+
+### Platform Support Comparison
+
+| Platform / Architecture | Official MLKit (Before) | This Patch (After) | Modification & Impact |
+|:---|:---:|:---:|:---|
+| **iOS Physical Device** (`arm64`) | ✅ Works | ✅ Works | **None** (Uses Google's original unmodified binary slice) |
+| **Intel Mac Simulator** (`x86_64`) | ✅ Works | ✅ Works | **None** (Uses Google's original unmodified binary slice) |
+| **Apple Silicon Simulator** (`arm64`) | ❌ Linker Error | ✅ Works | **Enabled** (Patched platform identifier & resolved symbol stubs) |
 
 ## Technical Details
 
@@ -220,22 +228,6 @@ The prebuilt xcframework binaries, OCR model files (`LatinOCRResources/`), and a
 
 This project applies platform patches (LC_BUILD_VERSION modification) to enable arm64 simulator support. These patches do not alter the functionality of the original libraries and are not considered derivative works under the Apache License.
 
-### Third-Party Dependencies
-
-The following open-source libraries are used as transitive dependencies (via CocoaPods source pods):
-
-| Library | License |
-|---------|---------|
-| Abseil (C++) | Apache License 2.0 |
-| GoogleUtilities | Apache License 2.0 |
-| GTMSessionFetcher | Apache License 2.0 |
-| GoogleDataTransport | Apache License 2.0 |
-| GoogleToolboxForMac | Apache License 2.0 |
-| Protobuf (Protocol Buffers) | BSD 3-Clause |
-| PromisesObjC | Apache License 2.0 |
-| nanopb | BSD 3-Clause |
-
-Full license texts are available in the `NOTICES` files included with each pod under `LocalPods/`.
 
 ## File Structure
 
