@@ -105,21 +105,6 @@ MLKitTextRecognition (7.0.0)
     +-- MLImage (1.0.0-beta8)
 ```
 
-### Source Dependencies (via CocoaPods)
-
-The prebuilt xcframeworks (MLKitCommon, MLKitVision, etc.) depend on the following source pods, which compile natively for simulator architectures:
-
-| Pod | Version | Purpose |
-|-----|---------|---------|
-| GTMSessionFetcher/Core | ~> 1.1 | HTTP requests |
-| GoogleDataTransport | ~> 7.0 | Data transport |
-| GoogleToolboxForMac/Logger | ~> 2.1 | Logging |
-| GoogleToolboxForMac/NSData+zlib | ~> 2.1 | Compression |
-| GoogleToolboxForMac/NSDictionary+URLArguments | ~> 2.1 | URL arguments |
-| GoogleUtilities/UserDefaults | ~> 6.0 | UserDefaults |
-| GoogleUtilitiesComponents | ~> 1.0 | Dependency injection |
-| Protobuf | ~> 3.12 | Protocol Buffers |
-
 ## Usage
 
 ### Option 1: Private Spec Repo Integration (GitHub Hosted - Recommended)
@@ -180,9 +165,6 @@ post_install do |installer|
 end
 ```
 
-**Notes:**
-- Add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to your project's Info.plist if using camera/photo library.
-
 
 ### Option 3: Manual Integration
 
@@ -223,8 +205,6 @@ To change versions: edit the download URLs and version numbers in `build_local_p
 
 1. **arm64 Simulator Performance**: Patched binaries may have degraded features on simulator due to missing hardware acceleration (e.g. Neural Engine), but core OCR functionality works correctly.
 2. **__.SYMDEF Symbol Table**: The original Google MLKit ar archives may contain `__.SYMDEF` entries referencing symbols from other archives (from merged builds). These symbols are lost after repacking and must be supplemented via stubs.
-3. **EXCLUDED_ARCHS**: The `EXCLUDED_ARCHS` setting must still be removed in `post_install`, otherwise CocoaPods will block compilation.
-4. **CocoaPods xcframework Integration**: CocoaPods generates aggregate targets for vendored xcframeworks without copying framework content to build products, causing Swift module resolution failures. The `post_install` hook in the Podfile resolves this by extracting simulator slices to `Pods-Prebuilt/` and adding `FRAMEWORK_SEARCH_PATHS`/`SWIFT_INCLUDE_PATHS`.
 
 ## Attribution & License
 
@@ -269,17 +249,19 @@ Full license texts are available in the `NOTICES` files included with each pod u
 |   +-- MLKitAbseilStubs/
 |   |   +-- MLKitAbseilStubs.podspec # Source podspec for stubs
 |   |   +-- AbseilStubs.mm           # Stub implementation file
-
 |   +-- MLImage/
-|   +-- MLImage.xcframework/
+|   |   +-- MLImage.podspec
+|   |   +-- MLImage.xcframework/
 |   +-- MLKitVision/
-|   +-- MLKitVision.xcframework/
+|   |   +-- MLKitVision.podspec
+|   |   +-- MLKitVision.xcframework/
 |   +-- MLKitTextRecognitionCommon/
-|   +-- MLKitTextRecognitionCommon.xcframework/
+|   |   +-- MLKitTextRecognitionCommon.podspec
+|   |   +-- MLKitTextRecognitionCommon.xcframework/
 |   +-- MLKitTextRecognition/
 |   |   +-- MLKitTextRecognition.podspec  # With resource_bundles config
 |   |   +-- Resources/LatinOCRResources/  # OCR model files
-|   +-- MLKitTextRecognition.xcframework/
+|   |   +-- MLKitTextRecognition.xcframework/
 +-- example/                         # Test project
 |   +-- ocrexample/                  # iOS sample app
 |   |   +-- ocrexample/

@@ -105,21 +105,6 @@ MLKitTextRecognition (7.0.0)
     +-- MLImage (1.0.0-beta8)
 ```
 
-### 源码依赖（需通过 CocoaPods 引入）
-
-MLKitCommon、MLKitVision 等预构建 xcframework 依赖以下源码 pod，这些 pod 编译时自动支持模拟器架构：
-
-| Pod | 版本 | 说明 |
-|-----|------|------|
-| GTMSessionFetcher/Core | ~> 1.1 | HTTP 请求 |
-| GoogleDataTransport | ~> 7.0 | 数据传输 |
-| GoogleToolboxForMac/Logger | ~> 2.1 | 日志 |
-| GoogleToolboxForMac/NSData+zlib | ~> 2.1 | 压缩 |
-| GoogleToolboxForMac/NSDictionary+URLArguments | ~> 2.1 | URL 参数 |
-| GoogleUtilities/UserDefaults | ~> 6.0 | UserDefaults |
-| GoogleUtilitiesComponents | ~> 1.0 | 依赖注入 |
-| Protobuf | ~> 3.12 | Protocol Buffers |
-
 ## 使用方式
 
 ### 方式一：私有 Spec Repo 集成（GitHub 托管，最推荐）
@@ -180,9 +165,6 @@ post_install do |installer|
 end
 ```
 
-**注意事项：**
-- 需要在项目的 Info.plist 中添加 `NSCameraUsageDescription` 和 `NSPhotoLibraryUsageDescription`（如需使用相机/相册）
-
 ### 方式三：手动集成
 
 将以下 9 个 `.xcframework` 直接拖入 Xcode 项目：
@@ -222,8 +204,6 @@ LocalPods/MLKitTextRecognitionKorean.xcframework
 
 1. **arm64 模拟器性能**：patch 后的二进制在模拟器上运行时，部分功能可能因缺少真机硬件加速（如 Neural Engine）而降级，但核心 OCR 功能正常工作
 2. **__.SYMDEF 符号表**：原始 Google MLKit 的 ar archive 中 __.SYMDEF 可能包含不属于该 archive 的符号（来自合并构建），重新打包后这些符号会丢失，需要通过 stub 补充
-3. **EXCLUDED_ARCHS**：仍需在 Podfile 的 post_install 中移除此设置，否则 CocoaPods 会阻止编译
-4. **CocoaPods xcframework 集成**：CocoaPods 对 vendored xcframework 生成 aggregate target，不会将 framework 内容复制到构建目录，导致 Swift 模块解析失败。Podfile 中的 post_install hook 通过提取模拟器切片到 Pods-Prebuilt/ 并添加 FRAMEWORK_SEARCH_PATHS/SWIFT_INCLUDE_PATHS 来解决
 
 ## 权利声明与许可证
 
@@ -268,17 +248,19 @@ LocalPods/MLKitTextRecognitionKorean.xcframework
 |   +-- MLKitAbseilStubs/
 |   |   +-- MLKitAbseilStubs.podspec # 桩文件源码 podspec
 |   |   +-- AbseilStubs.mm           # 桩文件实现源码
-
 |   +-- MLImage/
-|   +-- MLImage.xcframework/
+|   |   +-- MLImage.podspec
+|   |   +-- MLImage.xcframework/
 |   +-- MLKitVision/
-|   +-- MLKitVision.xcframework/
+|   |   +-- MLKitVision.podspec
+|   |   +-- MLKitVision.xcframework/
 |   +-- MLKitTextRecognitionCommon/
-|   +-- MLKitTextRecognitionCommon.xcframework/
+|   |   +-- MLKitTextRecognitionCommon.podspec
+|   |   +-- MLKitTextRecognitionCommon.xcframework/
 |   +-- MLKitTextRecognition/
 |   |   +-- MLKitTextRecognition.podspec  # 含 resource_bundles 配置
 |   |   +-- Resources/LatinOCRResources/  # OCR 模型文件
-|   +-- MLKitTextRecognition.xcframework/
+|   |   +-- MLKitTextRecognition.xcframework/
 +-- example/                     # 测试项目
 |   +-- ocrexample/              # iOS 示例 app
 |   |   +-- ocrexample/
