@@ -145,8 +145,6 @@ This is the most elegant way to integrate. You upload the built binary `.zip` co
    end
    ```
 
-*(Note: Even when using the private Spec Repo approach, CocoaPods still has a limitation regarding header search paths for static binaries. You MUST still include the `post_install` hook shown in "Option 2" below to patch the Framework search paths.)*
-
 ### Option 2: Local LocalPods Integration
 
 1. Copy the `LocalPods/` directory to your project root
@@ -154,19 +152,10 @@ This is the most elegant way to integrate. You upload the built binary `.zip` co
 3. Run `pod install`
 
 ```ruby
-require 'fileutils'
-
 platform :ios, '15.5'
 
 target 'YourApp' do
-  pod 'GTMSessionFetcher/Core', '~> 1.1'
-  pod 'GoogleDataTransport', '~> 7.0'
-  pod 'GoogleToolboxForMac/Logger', '~> 2.1'
-  pod 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-  pod 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
-  pod 'GoogleUtilities/UserDefaults', '~> 6.0'
-  pod 'GoogleUtilitiesComponents', '~> 1.0'
-  pod 'Protobuf', '~> 3.12'
+  use_frameworks! :linkage => :static
 
   pod 'MLKitAbseilStubs',           :path => './LocalPods/MLKitAbseilStubs'
   pod 'MLKitCommon',                :path => './LocalPods/MLKitCommon'
@@ -186,70 +175,14 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
       config.build_settings.delete 'EXCLUDED_ARCHS[sdk=iphonesimulator*]'
-
-      if target.name == 'GoogleDataTransport'
-        other_cflags = config.build_settings['OTHER_CFLAGS'] || '$(inherited)'
-        unless other_cflags.include?('-Wno-strict-prototypes')
-          config.build_settings['OTHER_CFLAGS'] = "#{other_cflags} -Wno-strict-prototypes"
-        end
-      end
     end
-  end
-
-  podfile_dir = File.dirname(installer.podfile.defined_in_file)
-  prebuilt_base = "#{podfile_dir}/Pods-Prebuilt"
-  FileUtils.rm_rf(prebuilt_base)
-
-  # Support local cache extraction for all language packs
-  xcframeworks = %w[MLKitCommon MLImage MLKitVision MLKitTextRecognitionCommon MLKitTextRecognition MLKitTextRecognitionChinese MLKitTextRecognitionDevanagari MLKitTextRecognitionJapanese MLKitTextRecognitionKorean]
-
-  xcframeworks.each do |fw_name|
-    xcframework_path = "#{podfile_dir}/LocalPods/#{fw_name}.xcframework"
-    next unless File.exist?(xcframework_path)
-    sim_slice = Dir.glob("#{xcframework_path}/ios-*simulator*").first
-    next unless sim_slice
-    framework_in_slice = Dir.glob("#{sim_slice}/#{fw_name}.framework").first
-    next unless framework_in_slice
-    target_dir = "#{prebuilt_base}/#{fw_name}"
-    FileUtils.mkdir_p(target_dir)
-    FileUtils.cp_r(framework_in_slice, "#{target_dir}/#{fw_name}.framework")
-  end
-
-  xcconfigs_to_patch = Dir.glob("#{installer.sandbox.root}/Target Support Files/Pods-#{File.basename(installer.podfile.defined_in_file, '.*')}/#{File.basename(installer.podfile.defined_in_file, '.*')}.*.xcconfig")
-
-  xcconfigs_to_patch.each do |xcconfig_path|
-    lines = File.readlines(xcconfig_path)
-    ldflags_parts = []
-    fw_search_parts = []
-    swift_search_parts = []
-    lines.each do |line|
-      if line.start_with?("OTHER_LDFLAGS")
-        ldflags_parts << line.split("=", 2).last.strip
-      elsif line.start_with?("FRAMEWORK_SEARCH_PATHS")
-        fw_search_parts << line.split("=", 2).last.strip
-      elsif line.start_with?("SWIFT_INCLUDE_PATHS")
-        swift_search_parts << line.split("=", 2).last.strip
-      end
-    end
-    xcframeworks.each do |fw_name|
-      prebuilt_dir = "#{prebuilt_base}/#{fw_name}"
-      next unless File.exist?("#{prebuilt_dir}/#{fw_name}.framework")
-      ldflags_parts << "-framework #{fw_name} -F\"#{prebuilt_dir}\""
-      fw_search_parts << "\"#{prebuilt_dir}\""
-      swift_search_parts << "\"#{prebuilt_dir}\""
-    end
-    new_lines = lines.reject { |l| l.start_with?("OTHER_LDFLAGS", "FRAMEWORK_SEARCH_PATHS", "SWIFT_INCLUDE_PATHS") }
-    new_lines << "OTHER_LDFLAGS = #{ldflags_parts.join(" ")}\n" if ldflags_parts.any?
-    new_lines << "FRAMEWORK_SEARCH_PATHS = #{fw_search_parts.join(" ")}\n" if fw_search_parts.any?
-    new_lines << "SWIFT_INCLUDE_PATHS = #{swift_search_parts.join(" ")}\n" if swift_search_parts.any?
-    File.write(xcconfig_path, new_lines.join)
   end
 end
 ```
 
 **Notes:**
-- GoogleDataTransport fails to compile on Xcode 15+ due to `-Werror,-Wstrict-prototypes`. Add `-Wno-strict-prototypes` in `post_install` to fix this.
 - Add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to your project's Info.plist if using camera/photo library.
+
 
 ### Option 3: Manual Integration
 

@@ -8,7 +8,7 @@ import MLImage
 struct ContentView: View {
     @State private var recognizedText: String = ""
     @State private var isProcessing = false
-    @State private var status = "点击按钮测试 OCR"
+    @State private var status = "Tap the button to test OCR"
 
     var body: some View {
         NavigationView {
@@ -18,7 +18,7 @@ struct ContentView: View {
                     .font(.system(size: 64))
                     .foregroundColor(.blue)
 
-                Text("Google ML Kit OCR 测试")
+                Text("Google ML Kit OCR Test")
                     .font(.title2)
                     .fontWeight(.semibold)
 
@@ -27,7 +27,7 @@ struct ContentView: View {
                     .foregroundColor(.secondary)
 
                 Button(action: testOCR) {
-                    Label("测试本地图片 OCR", systemImage: "doc.text.magnifyingglass")
+                    Label("Test OCR on local image", systemImage: "doc.text.magnifyingglass")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
@@ -37,19 +37,19 @@ struct ContentView: View {
                 .padding(.horizontal)
 
                 if isProcessing {
-                    ProgressView("正在识别...")
+                    ProgressView("Recognizing...")
                 }
 
                 if !recognizedText.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("识别结果")
+                            Text("Recognition Result")
                                 .font(.headline)
                             Spacer()
                             Button(action: {
                                 UIPasteboard.general.string = recognizedText
                             }) {
-                                Label("复制", systemImage: "doc.on.doc")
+                                Label("Copy", systemImage: "doc.on.doc")
                                     .font(.caption)
                             }
                         }
@@ -77,7 +77,7 @@ struct ContentView: View {
     func testOCR() {
         isProcessing = true
         recognizedText = ""
-        status = "正在初始化识别器..."
+        status = "Initializing recognizer..."
 
         let textRecognizer = TextRecognizer.textRecognizer()
 
@@ -90,27 +90,27 @@ struct ContentView: View {
                 .font: UIFont.systemFont(ofSize: 32),
                 .foregroundColor: UIColor.black
             ]
-            "Hello World!\nML Kit OCR 测试\nGoogle 文字识别"
+            "Hello World!\nML Kit OCR Test\nGoogle Text Recognition"
                 .draw(at: CGPoint(x: 20, y: 30), withAttributes: attrs)
         }
 
         guard let mlImage = MLImage(image: image) else {
             isProcessing = false
-            status = "无法创建 MLImage"
+            status = "Failed to create MLImage"
             return
         }
 
-        status = "正在识别文字..."
+        status = "Processing image..."
 
         textRecognizer.process(mlImage) { result, error in
             isProcessing = false
             if let error = error {
-                status = "识别失败"
-                recognizedText = "错误: \(error.localizedDescription)"
+                status = "Recognition failed"
+                recognizedText = "Error: \(error.localizedDescription)"
                 return
             }
             if let result = result {
-                status = "识别完成"
+                status = "Recognition completed"
                 recognizedText = result.text
             }
         }
