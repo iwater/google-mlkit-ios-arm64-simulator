@@ -194,7 +194,7 @@ Ensure `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` is NOT set in Build Settin
 
 **Manual integration requires additional steps:**
 - Add all source dependencies via SPM or manually (GoogleUtilities, GTMSessionFetcher, etc.)
-- Provide stub implementations for `GULOSLogBasic`, `GULOSLogError`, and `MLKITx_absl::*` symbols
+- Drag and add the `AbseilStubs.mm` source file from `LocalPods/MLKitAbseilStubs` into your Xcode project (to resolve missing `MLKITx_absl` symbol stubs)
 - Package `Resources/*OCRResources/` directories from each language pack as corresponding `.bundle` files and add them to the app bundle.
 
 ## Rebuilding
@@ -258,7 +258,6 @@ This project applies platform patches (LC_BUILD_VERSION modification) to enable 
 |   +-- ocrexample/                  # iOS sample app
 |   |   +-- ocrexample/
 |   |   |   +-- ContentView.swift   # OCR test interface
-|   |   |   +-- AbseilStubs.mm      # MLKITx_absl symbol stubs
 |   |   |   +-- ocrexampleApp.swift
 |   |   +-- ocrexample.xcodeproj/
 +-- NOTICES

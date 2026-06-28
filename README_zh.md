@@ -193,7 +193,7 @@ LocalPods/MLKitTextRecognitionKorean.xcframework
 
 **手动集成需要额外处理：**
 - 需要通过 SPM 或手动添加所有源码依赖（GoogleUtilities、GTMSessionFetcher 等）
-- 需要提供 `GULOSLogBasic`、`GULOSLogError` 和 `MLKITx_absl::*` 的 stub 实现
+- 需要将 `LocalPods/MLKitAbseilStubs` 目录下的 `AbseilStubs.mm` 拖入 Xcode 工程（以解决缺失的 `MLKITx_absl` 等桩函数符号冲突）
 - 需要将多语言下的 `Resources/*OCRResources/` 目录打包为对应的 `.bundle` 并添加到 app bundle
 
 ## 重新构建
@@ -257,7 +257,6 @@ LocalPods/MLKitTextRecognitionKorean.xcframework
 |   +-- ocrexample/              # iOS 示例 app
 |   |   +-- ocrexample/
 |   |   |   +-- ContentView.swift       # OCR 测试界面
-|   |   |   +-- AbseilStubs.mm          # MLKITx_absl 符号 stub 实现
 |   |   |   +-- ocrexampleApp.swift
 |   |   +-- ocrexample.xcodeproj/
 +-- NOTICES
